@@ -1,0 +1,14 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.Python
+.env
+.DS_Store
+
+# AI / editor artifacts — do not commit
+CLAUDE.md
+.cursor/
+.claude/
+agent-transcripts/
+*.canvas.tsx

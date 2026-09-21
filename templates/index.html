@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<header class="hero">
+  <p class="brand">Frontline</p>
+  <h1>Front-end roles, filtered to what is fresh.</h1>
+  <p class="lede">
+    Pull listings from a public board, keep only jobs posted within your window,
+    and scan the ones worth opening. Try the local demo board at
+    <code>/demo/board</code> as a custom URL.
+  </p>
+
+  <form class="scrape-form" method="post" action="{{ url_for('index') }}">
+    <div class="field">
+      <label for="preset">Board</label>
+      <select id="preset" name="preset">
+        {% for key, meta in presets.items() %}
+        <option value="{{ key }}" {% if selected_preset == key %}selected{% endif %}>
+          {{ meta.label }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field field-grow">
+      <label for="custom_url">Or paste a listing URL</label>
+      <input
+        id="custom_url"
+        name="custom_url"
+        type="url"
+        inputmode="url"
+        placeholder="https://…"
+        value="{{ custom_url }}"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="field">
+      <label for="days">Posted within</label>
+      <select id="days" name="days">
+        {% for option in day_options %}
+        <option value="{{ option }}" {% if days == option %}selected{% endif %}>
+          {{ option }} day{% if option != 1 %}s{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button class="cta" type="submit">Scrape jobs</button>
+  </form>
+</header>
+
+{% if scraped %}
+<section class="results" aria-live="polite">
+  {% if error %}
+  <div class="banner banner-error" role="alert">
+    <strong>Could not show listings</strong>
+    <p>{{ error }}</p>
+  </div>
+  {% elif jobs %}
+  <div class="results-head">
+    <h2>{{ jobs|length }} role{% if jobs|length != 1 %}s{% endif %}</h2>
+    <p>
+      From
+      <a href="{{ source_url }}" rel="noopener noreferrer" target="_blank">{{ source_url }}</a>
+      · last {{ days }} day{% if days != 1 %}s{% endif %}
+      {% if filtered_out %}
+      · {{ filtered_out }} older listing{% if filtered_out != 1 %}s{% endif %} hidden
+      {% endif %}
+    </p>
+  </div>
+
+  <ol class="job-list">
+    {% for job in jobs %}
+    <li class="job" style="--i: {{ loop.index0 }}">
+      <div class="job-main">
+        <a class="job-title" href="{{ job.url }}" rel="noopener noreferrer" target="_blank">
+          {{ job.title }}
+        </a>
+        <p class="job-meta">
+          <span>{{ job.company }}</span>
+          <span>{{ job.location }}</span>
+          <span>{{ job.posted_label }}</span>
+        </p>
+        {% if job.tags %}
+        <ul class="tags">
+          {% for tag in job.tags %}
+          <li>{{ tag }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+      <a class="job-open" href="{{ job.url }}" rel="noopener noreferrer" target="_blank">
+        Open
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <div class="banner banner-empty">
+    <strong>No roles in that window</strong>
+    <p>
+      Nothing matched the last {{ days }} day{% if days != 1 %}s{% endif %}.
+      {% if filtered_out %}
+      {{ filtered_out }} listing{% if filtered_out != 1 %}s{% endif %} were older than your filter.
+      {% endif %}
+      Try a wider range.
+    </p>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo Front-End Job Board</title>
+  </head>
+  <body>
+    <h1>Demo Front-End Job Board</h1>
+    <p>Sample listings for custom-URL scraping demos.</p>
+    <ul>
+      {% for job in jobs %}
+      <li class="job" data-job>
+        <h2 class="title"><a href="{{ job.url }}">{{ job.title }}</a></h2>
+        <p class="company">{{ job.company }}</p>
+        <p class="location">{{ job.location }}</p>
+        <time class="date" datetime="{{ job.posted }}">{{ job.posted_label }}</time>
+        <ul>
+          {% for tag in job.tags %}
+          <li class="tag">{{ tag }}</li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
